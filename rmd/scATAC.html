@@ -134,7 +134,9 @@ $(document).ready(function () {
 <li>Login into Jason’s VPN server (<code>su-vpn.stanford.edu</code>).</li>
 <li>ssh to the server of interest (e.g. <code>ssh jason@greenseq</code>) with <strong>TWO</strong> terminal windows</li>
 <li><p>In one terminal window, we’re going to expose the erisone server to port <code>2222</code> from the greenseq server like so:</p>
-<pre><code>ssh -L 2222:erisone.partners.org:22 cl322@ssh.research.partners.org</code></pre></li>
+<pre><code>ssh -L 2222:erisone.partners.org:22 cl322@ssh.research.partners.org</code></pre>
+<p>Alternatively, we can open the port in the background using these additional flags:</p>
+<pre><code>ssh -f -N -L 2222:erisone.partners.org:22 cl322@ssh.research.partners.org</code></pre></li>
 <li>After password authentication, this terminal window will bridge the erisone cluster and the greenseq cluster via port <code>2222</code></li>
 <li>Now, we can <code>ssh</code> or <code>scp</code> from the greenseq server using this exposed port (and thus without the need to VPN)</li>
 <li><p>To <code>ssh</code>, we have to remove the strict RSA key checking since these are a dynamic process and point our connection to the exposed port via local host:</p>
@@ -146,7 +148,9 @@ $(document).ready(function () {
 <pre><code>nohup scp -o StrictHostKeyChecking=no -P 2222 `find ./ -name &quot;singles*.st.bam&quot;` cl322@localhost:/data/aryee/caleb/scATAC/ &gt; nohub.out 2&gt;&amp;1
 *ctrl + z*
 bg</code></pre></li>
-<li><p>Finished!</p></li>
+<li>Note: if you want to <code>nohup</code> the file transfer, you’ll also have to have the <code>ssh</code> connection in the background as well (with the <code>-f -N</code> flags).</li>
+<li>Note: read <a href="http://stackoverflow.com/questions/9447226/how-to-close-this-ssh-tunnel">this</a> discussion on closing out ssh ports.</li>
+<li><p>Note: there’s nothing special about the port number <code>2222</code>. If it’s closed when you try to establish the connection in the first execution, you will get notified of this. Simply replace <code>2222</code> with some other port number.</p></li>
 </ul>
 <div id="acknowledgements" class="section level3">
 <h3>Acknowledgements</h3>

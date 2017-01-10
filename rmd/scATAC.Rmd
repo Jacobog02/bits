@@ -22,7 +22,7 @@ ssh -L 2222:erisone.partners.org:22 cl322@ssh.research.partners.org
 ```
 Alternatively, we can open the port in the background using these additional flags:
 ```
-ssh -f -N -L 2223:erisone.partners.org:22 cl322@ssh.research.partners.org
+ssh -f -N -L 2222:erisone.partners.org:22 cl322@ssh.research.partners.org
 ```
 - After password authentication, this terminal window will bridge the erisone cluster and the greenseq cluster via port `2222`
 - Now, we can `ssh` or `scp` from the greenseq server using this exposed port (and thus without the need to VPN)
@@ -42,7 +42,9 @@ nohup scp -o StrictHostKeyChecking=no -P 2222 `find ./ -name "singles*.st.bam"` 
 *ctrl + z*
 bg
 ```
-- Note: if you want to `nohup` the file transfer, you'll also have to have the `ssh` connection in the backgroun as well. 
+- Note: if you want to `nohup` the file transfer, you'll also have to have the `ssh` connection in the background  as well (with the `-f -N` flags). 
+- Note: read [this](http://stackoverflow.com/questions/9447226/how-to-close-this-ssh-tunnel) discussion on closing out ssh ports. 
+- Note: there's nothing special about the port number `2222`. If it's closed when you try to establish the connection in the first execution, you will get notified of this. Simply replace `2222` with some other port number. 
 
 ### Acknowledgements
 Thanks to Martin Aryee for the discussion on ssh-fu'ing
