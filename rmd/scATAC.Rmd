@@ -1,0 +1,48 @@
+---
+title: "ssh-Fu: the scATAC Edition"
+author: Caleb Lareau
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The problem
+
+We want to transfer a large amount of data from Jason's server at Stanford to the MGH Erisone cluster. The problem is that both the Stanford server and the MGH server require a VPN to access. We can't be VPN'd to two different connections at once, right? RIGHT?
+
+## The solution
+- Login into Jason's VPN server (`su-vpn.stanford.edu`).
+- ssh to the server of interest (e.g. `ssh jason@greenseq`) with **TWO** terminal windows
+- In one terminal window, we're going to expose the erisone server to port `2222` from the greenseq server like so:
+```
+ssh -L 2222:erisone.partners.org:22 cl322@ssh.research.partners.org
+```
+Alternatively, we can open the port in the background using these additional flags:
+```
+ssh -f -N -L 2223:erisone.partners.org:22 cl322@ssh.research.partners.org
+```
+- After password authentication, this terminal window will bridge the erisone cluster and the greenseq cluster via port `2222`
+- Now, we can `ssh` or `scp` from the greenseq server using this exposed port (and thus without the need to VPN)
+- To `ssh`, we have to remove the strict RSA key checking since these are a dynamic process and point our connection to the exposed port via local host: 
+```
+ssh -o StrictHostKeyChecking=no -p 2222 cl322@localhost
+```
+- In general, we don't care as much about being able to `ssh` (it may be nice to do this in a **third** terminal window though to verify the files are transfering). Instead, we want to `scp` files, using the following command:
+```
+scp -o StrictHostKeyChecking=no -P 2222 `find ./ -name "singles*.st.bam"` cl322@localhost:/data/aryee/caleb/scATAC/
+```
+An important thing to not here is that the `scp` synatx requires a captial "P", but otherwise, the typical `scp` syntax is retained. 
+
+- Rather than watching all of the files transfer, we may want to throw the command in the background. This way, we can close our windows and do something else. See the discussion [here](https://bharatikunal.wordpress.com/2010/10/20/scp-as-a-background-process/). Thus, the final command that was executed with port `2222` still exposed in another command window was
+```
+nohup scp -o StrictHostKeyChecking=no -P 2222 `find ./ -name "singles*.st.bam"` cl322@localhost:/data/aryee/caleb/scATAC/ > nohub.out 2>&1
+*ctrl + z*
+bg
+```
+- Note: if you want to `nohup` the file transfer, you'll also have to have the `ssh` connection in the backgroun as well. 
+
+### Acknowledgements
+Thanks to Martin Aryee for the discussion on ssh-fu'ing
