@@ -11,7 +11,7 @@
 
 <meta name="author" content="Caleb Lareau" />
 
-<meta name="date" content="2017-01-10" />
+<meta name="date" content="2017-01-11" />
 
 <title>ssh-Fu: the scATAC Edition</title>
 
@@ -119,7 +119,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">ssh-Fu: the scATAC Edition</h1>
 <h4 class="author"><em>Caleb Lareau</em></h4>
-<h4 class="date"><em>2017-01-10</em></h4>
+<h4 class="date"><em>2017-01-11</em></h4>
 
 </div>
 
@@ -128,8 +128,8 @@ $(document).ready(function () {
 <h2>The problem</h2>
 <p>We want to transfer a large amount of data from Jason’s server at Stanford to the MGH Erisone cluster. The problem is that both the Stanford server and the MGH server require a VPN to access. We can’t be VPN’d to two different connections at once, right? RIGHT?</p>
 </div>
-<div id="the-solution" class="section level2">
-<h2>The solution</h2>
+<div id="ssh-tunnel" class="section level2">
+<h2>SSH Tunnel</h2>
 <ul>
 <li>Login into Jason’s VPN server (<code>su-vpn.stanford.edu</code>).</li>
 <li>ssh to the server of interest (e.g. <code>ssh jason@greenseq</code>) with <strong>TWO</strong> terminal windows</li>
@@ -141,6 +141,11 @@ $(document).ready(function () {
 <li>Now, we can <code>ssh</code> or <code>scp</code> from the greenseq server using this exposed port (and thus without the need to VPN)</li>
 <li><p>To <code>ssh</code>, we have to remove the strict RSA key checking since these are a dynamic process and point our connection to the exposed port via local host:</p>
 <pre><code>ssh -o StrictHostKeyChecking=no -p 2222 cl322@localhost</code></pre></li>
+</ul>
+</div>
+<div id="moving-files" class="section level2">
+<h2>Moving Files</h2>
+<ul>
 <li><p>In general, we don’t care as much about being able to <code>ssh</code> (it may be nice to do this in a <strong>third</strong> terminal window though to verify the files are transfering). Instead, we want to <code>scp</code> files, using the following command:</p>
 <pre><code>scp -o StrictHostKeyChecking=no -P 2222 `find ./ -name &quot;singles*.st.bam&quot;` cl322@localhost:/data/aryee/caleb/scATAC/</code></pre>
 <p>An important thing to not here is that the <code>scp</code> synatx requires a captial “P”, but otherwise, the typical <code>scp</code> syntax is retained.</p></li>
@@ -151,6 +156,15 @@ bg</code></pre></li>
 <li>Note: if you want to <code>nohup</code> the file transfer, you’ll also have to have the <code>ssh</code> connection in the background as well (with the <code>-f -N</code> flags).</li>
 <li>Note: read <a href="http://stackoverflow.com/questions/9447226/how-to-close-this-ssh-tunnel">this</a> discussion on closing out ssh ports.</li>
 <li><p>Note: there’s nothing special about the port number <code>2222</code>. If it’s closed when you try to establish the connection in the first execution, you will get notified of this. Simply replace <code>2222</code> with some other port number.</p></li>
+</ul>
+</div>
+<div id="important" class="section level2">
+<h2>Important</h2>
+<ul>
+<li><p>You’ll want to close the ssh port before exiting whatever server you’re on. This isn’t a big deal if you ran the port connection in the foreground. However, if you ran it in the background (i.e. the <code>-f -N</code> flags), then you’ll need to kill the connection to make your server access play friendly in the future. From <a href="http://stackoverflow.com/questions/9447226/how-to-close-this-ssh-tunnel">the post linked above</a>, see which connection is responsible for the port connection:</p>
+<pre><code>ps aux | grep 2222</code></pre>
+<p>and then look for the second column that has the <code>pid</code>. Say this number is <code>14651</code>. Close it off using the following:</p>
+<pre><code>kill -9 14651</code></pre></li>
 </ul>
 <div id="acknowledgements" class="section level3">
 <h3>Acknowledgements</h3>

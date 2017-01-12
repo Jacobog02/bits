@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 We want to transfer a large amount of data from Jason's server at Stanford to the MGH Erisone cluster. The problem is that both the Stanford server and the MGH server require a VPN to access. We can't be VPN'd to two different connections at once, right? RIGHT?
 
-## The solution
+## SSH Tunnel
 - Login into Jason's VPN server (`su-vpn.stanford.edu`).
 - ssh to the server of interest (e.g. `ssh jason@greenseq`) with **TWO** terminal windows
 - In one terminal window, we're going to expose the erisone server to port `2222` from the greenseq server like so:
@@ -30,6 +30,8 @@ ssh -f -N -L 2222:erisone.partners.org:22 cl322@ssh.research.partners.org
 ```
 ssh -o StrictHostKeyChecking=no -p 2222 cl322@localhost
 ```
+
+## Moving Files
 - In general, we don't care as much about being able to `ssh` (it may be nice to do this in a **third** terminal window though to verify the files are transfering). Instead, we want to `scp` files, using the following command:
 ```
 scp -o StrictHostKeyChecking=no -P 2222 `find ./ -name "singles*.st.bam"` cl322@localhost:/data/aryee/caleb/scATAC/
@@ -46,5 +48,15 @@ bg
 - Note: read [this](http://stackoverflow.com/questions/9447226/how-to-close-this-ssh-tunnel) discussion on closing out ssh ports. 
 - Note: there's nothing special about the port number `2222`. If it's closed when you try to establish the connection in the first execution, you will get notified of this. Simply replace `2222` with some other port number. 
 
-### Acknowledgements
+## Important
+- You'll want to close the ssh port before exiting whatever server you're on. This isn't a big deal if you ran the port connection in the foreground. However, if you ran it in the background (i.e. the `-f -N` flags), then you'll need to kill the connection to make your server access play friendly in the future. From [the post linked above](http://stackoverflow.com/questions/9447226/how-to-close-this-ssh-tunnel), see which connection is responsible for the port connection:
+```
+ps aux | grep 2222
+```
+and then look for the second column that has the `pid`. Say this number is `14651`. Close it off using the following:
+```
+kill -9 14651
+```
+
+## Acknowledgements
 Thanks to Martin Aryee for the discussion on ssh-fu'ing
