@@ -10,4 +10,7 @@ done
 
 ## Note: You can't just `bsub` the alignement with bowtie as some of the arguments will be parsed; stick this puppy in a shell script.
 
-## Note: Path for mm9 bowtie reference genome is `/data/aryee/pub/genomes/bowtie2_index_mm9/mm9`
+## Note: Path for mm9 bowtie reference genome is:
+```
+/data/aryee/pub/genomes/bowtie2_index_mm9/mm9
+```
