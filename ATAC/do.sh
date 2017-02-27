@@ -9,7 +9,7 @@ echo "trim reads"
 bowtie2 -x /data/aryee/pub/genomes/bowtie2_index/hg19 -X 2000 -1 "t.${sample}_R1_001.trim.fastq.gz" -2 "t.${sample}_R2_001.trim.fastq.gz" -S "${sample}.bt2out.sam"
 
 echo "Keep only mapped reads of which quality is more than 5 = unique mapping ..."
-samtools view -bS ${sample}.bt2out.sam >  "${sample}.bam"	# keep only mapped reads
+samtools view -bS ${sample}.bt2out.sam >  "${sample}.bam"
 
 echo "Sorting/Indexing" 
 samtools sort "${sample}.bam" -o "${sample}_s.bam"
