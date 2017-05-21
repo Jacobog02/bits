@@ -1,5 +1,5 @@
 ---
-title: "Running BED Enrichment Analyses on Orchestra"
+title: "Running BED Enrichment Analyses"
 author: Caleb Lareau
 date: "`r Sys.Date()`"
 output: html_document
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Setting
 
-The goal of these analyses are to identify enriched transcription factors / histone mods within a subset of genomic loci identified through whatever means. For example, 
+The goal of these analyses are to identify enriched transcription factors / histone mods within a subset of genomic loci identified through whatever means (e.g. ATAC-Seq, ChIP-Seq). For example, consider a set of loci that were identified through 3 different ChIP-enrichments--
 
 ```
 A.bed
@@ -19,14 +19,23 @@ B.bed
 C.bed
 ````
 
-Other examples of sensible analyses in this framework would include (but are certainly not limited to)-- 
+A question of interest may be "what epigenomic/transcription factor features are enriched in `A` relative to the others?". The key here is that we must define a "universe" of genomic loci / peaks (in this example-- the union of `A`, `B`, and `C`) and then interrogate a subset (e.g. `A`) for enrichment with various transcription factor binding loci and aggregation of histone modifications.  
+
+
+Other examples of sensible analyses in this framework would include (but are certainly not limited to)-- "what is enriched in my (subsetted) list of differential peaks relative to all peaks?" or "what is enriched in my (subsetted) list of peaks that overlap a GWAS variant relative to all peaks?" A brief description of how to run this framework is described below. 
+
+## Important Notes
+
+- This framework currently supports histone and TF enrichment for mouse and human. 
+- The genomic loci are aligned to `hg38` and `mm10`. If your data is aligned to a different reference genome, you'll need to either realign or do a liftover. I have an [Rpackage that makes this easy](https://github.com/caleblareau/easyLift)
+- Regions that merely overlap by 1 or more bp are considered hits for enrichment. 
 
 ## What
 
 The analyses are really straight-forward thanks to some really nice tools. Namely, the [Cistrome](http://www.cistrome.org/db/#/) database was used as a collection of "all the ChIP-Seq tracks on GEO". Next, for the enrichment analyses, we use [LOLA](http://databio.org/lola/), which provides a relatively simply yet elegant implementation of Fisher's exact test ([math shown here](https://en.wikipedia.org/wiki/Fisher%27s_exact_test)) to perform the enrichment. I've used some data caching and a couple of other organization schemes to make the analysis run nicely and quickly, but these tools / authors do all the heavily lifiting and should be recognized / cited as such. 
 
 
-## How
+## Dependencies (Orchestra)
 
 You'll need to load a relatively recent version of `R` into your `PATH`. I found the following module to seemingly work fine.
 
@@ -41,19 +50,41 @@ Next, you'll need to install the singular `R` dependency package, which is `LOLA
 source("https://bioconductor.org/biocLite.R")
 biocLite("LOLA")
 ```
+Currently, the folder with everything pre-computed is sitting here for Orchestra--
+```
+/n/scratch2/cal52/bedEnrichment
+```
+but it may move.
+
+## Analysis
+
+With the dependencies installed and the pre-computed file structure wrangled, the analysis can be executed using the following framework. A simple R script showing enrichment for an example factor (BAF155) within a universe (all BAF peaks) is shown here--
 
 ```
 library(LOLA)
 
 background_path <- "input/BAF_universe.bedover"
+test_path <- "input/EOL1_WT_BAF155_peaks.bedover"
+
 cores <- 8 
 regionDB <- readRDS("../hg38_hist/Histone_human_Cistrome/hg38_histone_cistrome.rds")
 background <- readBed(background_path)
-res <- runLOLA(readBed("input/EOL1_WT_BAF155_peaks.bedover"),background,regionDB,cores=cores)
+res <- runLOLA(readBed(),background,regionDB,cores=cores)
 writeCombinedEnrichment(res, outFolder= "EOL1_BAF155_Histone")
 ```
 
-The location/file path of all the cached data for mouse/human enrichments can be found here--
+Key points of this analysis script:
+
+- Load the `LOLA` package which is hopefully installed by now. 
+- Provide the file path to the `.bed` (or related file) of the "universe" of peaks. 
+- Provide the file path to the `.bed` (or related file) of the "test" peaks. 
+- Specify the number of cores available for analysis. Orchestra gives you access to 12 per job AFAIK.
+- Read in the region database file. This should point to one of (presently) four `.rds` files that I've pre-computed and cached. The `LOLA` documentation describes what happens in this step. For each of the databases that I've set up, it took > 2 days to precompute everything, which is why the caching is so valuable. 
+- Read the background file in that was already specified. Simple. 
+- Run the enrichment analyses.
+- Export the table to a simple `.tsv` file. 
+
+The location/file path of all the cached data for mouse/human enrichments can be found here and what's what should be self-explanatory--
 
 ```
 hg38_hist/Histone_human_Cistrome/hg38_histone_cistrome.rds
@@ -61,12 +92,26 @@ hg38_tf/TF_human_Cistrome/hg38_TF_cistrome.rds
 mm10_hist/Histone_mouse_Cistrome/mm10_histone_cistrome.rds
 mm10_tf/TF_mouse_Cistrome/mm10_TF_cistrome.rds
 ```
+Note: there are `regions.tar.gz` that contain the actual `.bed/.narrowPeak` files that were at some point read in and processed before I made these cached versions in the `rds` file. 
 
-Finally, submit the `Rscript` to the `mcore` queue using a command like the following--
+The sample `Rscript` that I used to run the analyses for the BAF peaks can be found here:
 
 ```
-bsub -q mcore -n 8 Rscript 
+/n/scratch2/cal52/bedEnrichment/BAF_EOL1/allEnrichments.R 
 ```
+
+Finally, to run the enrichment analyses, submit the `Rscript` to the `mcore` queue using a command like the following (untested but should probably work)--
+
+```
+bsub -q mcore -n 8 Rscript allEnrichments.R 
+```
+
+## It didn't work??? 
+Obviously, there are impossibly many errors to anticipate, but here are some potential issues that I could imagine would cause an analysis to pause or be unsuccessful or unintelligible:
+
+- Make sure that the chromosome names have `chr` appended to them
+- Check the species
+- Check genome build (see lifting over genomic coordinates above)
 
 ## References 
 
