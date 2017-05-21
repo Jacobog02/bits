@@ -4,7 +4,7 @@ e.g. on ImmGen data
 ### Activate virtual environment with install
 ```
 [cl322@rgs13 NucleoATAC]$ pwd
-/data/aryee/caleb/NucleoATAC
+/data/aryee/caleb/NucleoATAC/NucleoATAC
 [cl322@rgs13 NucleoATAC]$ source venv/bin/activate
 ```
 

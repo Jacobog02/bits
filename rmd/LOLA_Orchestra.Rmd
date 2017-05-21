@@ -1,0 +1,74 @@
+---
+title: "Running BED Enrichment Analyses on Orchestra"
+author: Caleb Lareau
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setting
+
+The goal of these analyses are to identify enriched transcription factors / histone mods within a subset of genomic loci identified through whatever means. For example, 
+
+```
+A.bed
+B.bed
+C.bed
+````
+
+Other examples of sensible analyses in this framework would include (but are certainly not limited to)-- 
+
+## What
+
+The analyses are really straight-forward thanks to some really nice tools. Namely, the [Cistrome](http://www.cistrome.org/db/#/) database was used as a collection of "all the ChIP-Seq tracks on GEO". Next, for the enrichment analyses, we use [LOLA](http://databio.org/lola/), which provides a relatively simply yet elegant implementation of Fisher's exact test ([math shown here](https://en.wikipedia.org/wiki/Fisher%27s_exact_test)) to perform the enrichment. I've used some data caching and a couple of other organization schemes to make the analysis run nicely and quickly, but these tools / authors do all the heavily lifiting and should be recognized / cited as such. 
+
+
+## How
+
+You'll need to load a relatively recent version of `R` into your `PATH`. I found the following module to seemingly work fine.
+
+```
+module load stats/R/3.3.1
+```
+
+Next, you'll need to install the singular `R` dependency package, which is `LOLA`. You can install  [LOLA through Bioconductor](http://bioconductor.org/packages/release/bioc/html/LOLA.html), or simply copy/paste the following code into an interactive `R` session. Note: on Orchestra, R packages are maintained through individual user library instances, so each user will have to install `LOLA` individually.
+
+```
+## try http:// if https:// URLs are not supported
+source("https://bioconductor.org/biocLite.R")
+biocLite("LOLA")
+```
+
+```
+library(LOLA)
+
+background_path <- "input/BAF_universe.bedover"
+cores <- 8 
+regionDB <- readRDS("../hg38_hist/Histone_human_Cistrome/hg38_histone_cistrome.rds")
+background <- readBed(background_path)
+res <- runLOLA(readBed("input/EOL1_WT_BAF155_peaks.bedover"),background,regionDB,cores=cores)
+writeCombinedEnrichment(res, outFolder= "EOL1_BAF155_Histone")
+```
+
+The location/file path of all the cached data for mouse/human enrichments can be found here--
+
+```
+hg38_hist/Histone_human_Cistrome/hg38_histone_cistrome.rds
+hg38_tf/TF_human_Cistrome/hg38_TF_cistrome.rds
+mm10_hist/Histone_mouse_Cistrome/mm10_histone_cistrome.rds
+mm10_tf/TF_mouse_Cistrome/mm10_TF_cistrome.rds
+```
+
+Finally, submit the `Rscript` to the `mcore` queue using a command like the following--
+
+```
+bsub -q mcore -n 8 Rscript 
+```
+
+## References 
+
+- [Cistrome](https://academic.oup.com/nar/article/45/D1/D658/2333932/Cistrome-Data-Browser-a-data-portal-for-ChIP-Seq)
+- [LOLA](https://academic.oup.com/bioinformatics/article/32/4/587/1743969/LOLA-enrichment-analysis-for-genomic-region-sets)
