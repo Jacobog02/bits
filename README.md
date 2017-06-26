@@ -1,3 +1,7 @@
-## Knowledge
+## Useful information
 
-CAL's collection of tips and tricks of things that I've found to be useful. 
+- [Transferring scATAC data / ssh tunneling](rmd/scATAC_transfer.html)
+- [Useful R commands and syntax](rmd/Rcmds.html)
+
+## Collab
+- [Running LOLA on Orchestra](rmd/LOLA_Orchestra.html)
