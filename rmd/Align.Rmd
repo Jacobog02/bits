@@ -1,0 +1,108 @@
+---
+title: "Common align workflows"
+author: Caleb Lareau
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Genome indices
+
+#### Bowtie2
+```
+/data/aryee/pub/genomes/bowtie2_index_hg38/hg38
+/data/aryee/pub/genomes/bowtie2_index/hg19
+/data/aryee/pub/genomes/mm10/bt2/mm10
+/data/aryee/pub/genomes/bowtie2_index_mm9/mm9
+```
+
+#### STAR
+```
+/data/aryee/pub/genomes/star/hg19_chr/ 
+/data/aryee/pub/genomes/mm10/STAR/
+/data/molpath/genomes/mm9/STAR_index_mm9/
+```
+
+## Sample Bowtie2 alignment
+
+#### Single-end alignemnt
+```
+(bowtie2  -p 4 -x /data/aryee/pub/genomes/bowtie2_index/hg19 -U SRR1593986_1.fastq.gz | samtools view -bS - | samtools sort -@ 4 - -o SRR1593986.all.sorted.bam) 2> SRR1593986.log
+```
+
+#### Paired-end, ATAC
+```
+(bowtie2 -X 2000 -p 4 -x /data/aryee/pub/genomes/bowtie2_index/hg19 --rg-id $sample -1 "${sample}_1.trim.fastq.gz" -2  "${sample}_2.trim.fastq.gz" | samtools view -bS - | samtools sort -@ 4 - -o "${sample}.all.sorted.bam") 2> "${sample}.log"
+```
+
+## STAR with paired-end + quants
+
+
+#### hg38, single cell DMNT KO project
+```
+#!/bin/bash
+fq1=$1
+fq2=$2
+outname=$3
+
+STAR --runMode alignReads \
+	--readFilesCommand zcat \
+	--outFilterMultimapNmax 1 \
+	--outFilterMatchNmin 35 \
+	--quantMode GeneCounts \
+	--twopassMode Basic \
+	--outFileNamePrefix "counts/${outname}" \
+	--genomeDir /PHShome/ma695/work/projects/sc_dnmt_ko_RNAalign/refdata-cellranger-GRCh38-1.2.0/star \
+	--sjdbGTFfile /PHShome/ma695/work/projects/sc_dnmt_ko_RNAalign/refdata-cellranger-GRCh38-1.2.0/genes/genes.gtf \
+	--readFilesIn $fq1 $fq2
+
+rm "counts/${outname}Aligned.out.sam"
+rm -rf "counts/${outname}_STARgenome"
+rm -rf "counts/${outname}_STARpass1"
+```
+
+#### mm9, Kelvin data
+
+Working directory: `/data/aryee/caleb/japan_treg/rna`
+
+```
+#!/bin/bash
+fq1=$1
+outname=$2
+
+STAR --runMode alignReads \
+	--readFilesCommand zcat \
+	--outFilterMultimapNmax 1 \
+	--outFilterMatchNmin 35 \
+	--quantMode GeneCounts \
+	--twopassMode Basic \
+	--outFileNamePrefix "counts/${outname}" \
+	--genomeDir /data/aryee/pub/genomes/star/mm9 \
+	--sjdbGTFfile /data/aryee/pub/genomes/star/mm9/mm9.gtf \
+	--readFilesIn $fq1 
+
+rm "counts/${outname}Aligned.out.sam"
+rm -rf "counts/${outname}_STARgenome"
+rm -rf "counts/${outname}_STARpass1"
+```
+
+## Older stuff
+
+Align multiple single-end reads to bowtie mm10 reference genome and produce bam files:
+
+```
+SAMPLES="SRR185879 SRR185880"
+
+for SAMPLE in $SAMPLES
+do
+bowtie2 -x /data/aryee/pub/genomes/mm10/bt2/mm10 -U "${SAMPLE}_1.fastq.gz" | samtools view -bS - > "${SAMPLE}.bam"
+done
+```
+
+**Note:** You can't just `bsub` the alignement with bowtie as some of the arguments will be parsed; stick this puppy in a shell script.
+
+
+<br><br>
