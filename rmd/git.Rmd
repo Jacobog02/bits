@@ -1,0 +1,33 @@
+---
+title: "Common align workflows"
+author: Caleb Lareau
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_document:
+    theme: readable
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## About
+
+Useful commands in `git` that I can never seem to remember but are very useful.
+
+## Unstage commit
+
+If one tries to commit a file > 100 Mb limit in [GitHub](http://www.github.com), 
+
+```
+git reset HEAD~
+--remove file--
+rm LARGEFILE
+--git ignore large file--
+vi .gitignore  # then modify
+git add -A
+git commit -m "fixed large file commit"
+git push
+```
+
+<br><br>
