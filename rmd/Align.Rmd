@@ -66,6 +66,46 @@ rm -rf "counts/${outname}_STARgenome"
 rm -rf "counts/${outname}_STARpass1"
 ```
 
+**For quantifying hg19 genes and extracting mitochondria:**
+
+```
+#!/bin/bash
+
+SRR_IDS=$(cat $1 |tr "\n" " ")
+
+mkdir -p starlogs
+mkdir -p mito_bam
+mkdir -p counts
+
+for SRR in $SRR_IDS
+do
+echo $SRR
+
+STAR --runMode alignReads \
+  --readFilesCommand zcat \
+  --quantMode GeneCounts \
+  --genomeDir /data/aryee/pub/genomes/star/hg19_chr/ \
+  --sjdbGTFfile /data/aryee/caleb/greenleaf_scRNAseq/refdata-cellranger-hg19-1.2.0/genes/gencode.v19.annotation.gtf \
+  --readFilesIn "fastq/${SRR}_R1_001.fastq.gz" "fastq/${SRR}_R2_001.fastq.gz" \
+  --outFileNamePrefix "${SRR}"
+
+# Extract Mitochondria
+samtools view -H "${SRR}Aligned.out.sam" > "${SRR}.sam"
+awk '$3 == "chrM" {print $0}' "${SRR}Aligned.out.sam" >> "${SRR}.sam"
+samtools view -Sb "${SRR}.sam" | samtools sort > "mito_bam/${SRR}.mito.bam" && samtools index "mito_bam/${SRR}.mito.bam"
+#samtools view  "mito_bam/${SRR}.mito.bam" | wc -l > "mito_bam/${SRR}.mitoreads.txt"
+mv "${SRR}Log.final.out" "starlogs/${SRR}Log.final.out"
+
+rm "${SRR}Aligned.out.sam"
+rm "${SRR}.sam"
+rm "${SRR}Log.out"
+rm "${SRR}SJ.out.tab"
+rm "${SRR}Log.progress.out"
+
+done
+```
+
+
 #### mm9, Kelvin data
 
 Working directory: `/data/aryee/caleb/japan_treg/rna`
