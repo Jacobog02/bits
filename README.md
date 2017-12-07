@@ -3,6 +3,7 @@
 ### Command line interface
 
 - [Help with git](rmd/git.html)
+- [Protected Access SRA files](md/gtex_download.md)
 - [Shell script loops](md/shellLoop.md)
 - [Transferring scATAC data / ssh tunneling](rmd/scATAC_transfer.html)
 - [Useful bash commands](rmd/bashHelp.html)
