@@ -11,6 +11,7 @@
 ### Bioinformatics, R, Python
 
 - [Align and quantify reads](rmd/Align.html)
+- [Annotate SNPs in hg19](md/snp_annotation.md)
 - [Mitochondria / Nuclear Reads splitting](md/samtoolsMito.md)
 - [Help for developing in Snakemake](rmd/Snakemake.html)
 - [Useful R commands and syntax](rmd/Rcmds.html)
