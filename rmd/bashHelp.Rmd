@@ -37,3 +37,28 @@ find `pwd` -name *_2.fastq.gz
 ```
 for f in *.bam; do samtools index $f; done
 ```
+
+## Delete all files with less than 1000 lines 
+
+```
+find . -type f -exec awk -v x=1000 'NR==x{exit 1}' {} \; -exec rm -f {} \;
+```
+
+## Change all .bam files to .sam files and then compress them with missing header
+
+Assumes that you have a `header.sam` floating around
+
+Change all `*.bam` files to `*.sam` files
+```
+for f in *.bam; do mv -- "$f" "${f%.bam}.sam"; done
+```
+
+Change all `*.sam` files to `.bam` files using compression
+
+```
+for f in *.sam; do cat ../header.sam $f | samtools view -b -  > "${f%.*}.bam"; done
+```
+
+This is less painful if you don't butcher your `.sam` file without its header. 
+
+
