@@ -1,4 +1,39 @@
-## Extract nuclear / mito reads
+# Handling mitochondrial reads
+
+## Recommended way with both BAQ and BQ
+
+```
+#!/bin/bash
+
+SRR_IDS=$(cat $1 |tr "\n" " ")
+
+for SRR in $SRR_IDS
+do
+echo $SRR
+
+#SRR=$1
+
+# Align and send to BAM
+STAR --genomeDir /data/aryee/pub/genomes/star/hg19_chr/ --readFilesIn "../fastq0/${SRR}_1.fastq.gz" --readFilesCommand zcat --outFileNamePrefix "${SRR}" --outStd SAM | samtools sort - -o "${SRR}.m.bam" && samtools index "${SRR}.m.bam"
+
+# Recalibrate
+samtools view -b "${SRR}.m.bam" chrM | samtools calmd -bAr - hg19.fasta > "${SRR}.mito.bam"
+samtools view -b "${SRR}.m.bam" chrM > "mito_bq_bam/${SRR}.mito.bam" && samtools index "mito_bq_bam/${SRR}.mito.bam"
+
+# Cleanup
+rm ${SRR}Log*
+rm ${SRR}SJ.out.tab
+rm "${SRR}.m.bam"
+rm "${SRR}.m.bam.bai"
+
+# Move
+mv "${SRR}.mito.bam" mito_baq_bam
+samtools index "mito_baq_bam/${SRR}.mito.bam"
+done
+
+```
+
+## Extract nuclear / mito reads -- OLD WAY
 Given an input `.bam` file, 
 split into two files 1) all nuclear reads 2) all mitochondrial reads.
 
