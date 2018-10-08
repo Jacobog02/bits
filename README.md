@@ -2,6 +2,7 @@
 
 ### Command line interface
 
+- [Basespace download](md/basespace_download.md)
 - [Help with git](rmd/git.html)
 - [Protected Access SRA files](md/gtex_download.md)
 - [Shell script loops](md/shellLoop.md)
