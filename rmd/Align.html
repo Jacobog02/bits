@@ -213,6 +213,14 @@ $(document).ready(function () {
 /data/molpath/genomes/mm9/STAR_index_mm9/</code></pre>
 </div>
 </div>
+<div id="sample-proatac-alignments" class="section level2">
+<h2>Sample proatac alignments</h2>
+<p>Just run each sample through a multi-threaded, single job</p>
+<pre><code>bsub -q big-multi -n 8 proatac bulk -i fastq -n TF1-BC9-Proatac -o TF1-BC9-Proatac -bi /data/aryee/pub/genomes/cellranger/refdata-cellranger-atac-hg19-1.0.0/fasta/hg19_10X -rg hg19 -c 8</code></pre>
+<p>Run samples through multiple jobs</p>
+<pre><code>bsub -q big proatac bulk -i fastq -n CLL-BulkATAC_Patient1 -o CLL-BulkATAC_Patient1_11Dec2018 -bi /data/aryee/pub/genomes/cellranger/refdata-cellranger-atac-hg19-1.0.0/fasta/hg19_10X --cluster &quot;bsub -q big -n 4 -o /dev/null&quot; --jobs 6 -rg hg19 -c 24
+</code></pre>
+</div>
 <div id="sample-bowtie2-alignment" class="section level2">
 <h2>Sample Bowtie2 alignment</h2>
 <div id="single-end-alignemnt" class="section level4">

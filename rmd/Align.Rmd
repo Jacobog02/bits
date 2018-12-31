@@ -36,6 +36,18 @@ hg19 reference genom with rCRS mitochondrial genome sequence
 /data/molpath/genomes/mm9/STAR_index_mm9/
 ```
 
+## Sample proatac alignments
+Just run each sample through a multi-threaded, single job
+```
+bsub -q big-multi -n 8 proatac bulk -i fastq -n TF1-BC9-Proatac -o TF1-BC9-Proatac -bi /data/aryee/pub/genomes/cellranger/refdata-cellranger-atac-hg19-1.0.0/fasta/hg19_10X -rg hg19 -c 8
+```
+
+Run samples through multiple jobs
+```
+bsub -q big proatac bulk -i fastq -n CLL-BulkATAC_Patient1 -o CLL-BulkATAC_Patient1_11Dec2018 -bi /data/aryee/pub/genomes/cellranger/refdata-cellranger-atac-hg19-1.0.0/fasta/hg19_10X --cluster "bsub -q big -n 4 -o /dev/null" --jobs 6 -rg hg19 -c 24
+
+```
+
 ## Sample Bowtie2 alignment
 
 #### Single-end alignemnt
