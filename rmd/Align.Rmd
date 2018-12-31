@@ -21,6 +21,14 @@ knitr::opts_chunk$set(echo = TRUE)
 /data/aryee/pub/genomes/bowtie2_index_mm9/mm9
 ```
 
+#### Important
+
+hg19 reference genom with rCRS mitochondrial genome sequence
+
+```
+/data/aryee/pub/genomes/cellranger/refdata-cellranger-atac-hg19-1.0.0/fasta/hg19_10X
+```
+
 #### STAR
 ```
 /data/aryee/pub/genomes/star/hg19_chr/ 
@@ -32,7 +40,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### Single-end alignemnt
 ```
-(bowtie2  -p 4 -x /data/aryee/pub/genomes/bowtie2_index/hg19 -U SRR1593986_1.fastq.gz | samtools view -bS - | samtools sort -@ 4 - -o SRR1593986.all.sorted.bam) 2> SRR1593986.log
+(bowtie2 -p 4 -x /data/aryee/pub/genomes/bowtie2_index/hg19 -U SRR1593986_1.fastq.gz | samtools view -bS - | samtools sort -@ 4 - -o SRR1593986.all.sorted.bam) 2> SRR1593986.log
 ```
 
 #### Paired-end, ATAC
