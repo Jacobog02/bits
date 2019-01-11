@@ -2,7 +2,7 @@
 
 ### Downloading public data
 
-- [General use SRA files](md/gtex_download.md)
+- [General use SRA files](md/sra_download.md)
 - [Protected Access SRA/dbGAP files](md/gtex_download.md)
 
 ### Command line interface
