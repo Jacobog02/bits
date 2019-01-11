@@ -1,10 +1,14 @@
 <br>
 
+### Downloading public data
+
+- [General use SRA files](md/gtex_download.md)
+- [Protected Access SRA/dbGAP files](md/gtex_download.md)
+
 ### Command line interface
 
 - [Basespace download](md/basespace_download.md)
 - [Help with git](rmd/git.html)
-- [Protected Access SRA files](md/gtex_download.md)
 - [Shell script loops](md/shellLoop.md)
 - [Transferring scATAC data / ssh tunneling](rmd/scATAC_transfer.html)
 - [Useful bash commands](rmd/bashHelp.html)
