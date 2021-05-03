@@ -56,7 +56,7 @@ c.NotebookApp.ip = '*'
 c.NotebookApp.open_browser = False
 c.NotebookApp.port = 8888
 ```
-Now quit vim (`ESC` + `:wq:`)
+Now quit vim (`ESC` + `:wq` + `ENTER`)
 
 ## 6) Use resources!
 
