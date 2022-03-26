@@ -58,6 +58,7 @@ c.NotebookApp.port = 8888
 ```
 Now quit vim (`ESC` + `:wq` + `ENTER`)
 
+
 ## 6) Use resources!
 
 Navigate back to the gcp console and discern the static external IP address of your new virtual machine. In your web browser, enter the following for Rstudio:
