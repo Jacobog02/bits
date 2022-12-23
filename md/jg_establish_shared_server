@@ -1,0 +1,40 @@
+# Background
+
+I am making VM's shared by multiple users.
+
+I need a way to share files and junk across multiple users 
+
+
+https://unix.stackexchange.com/questions/151113/how-to-change-primary-group
+
+https://unix.stackexchange.com/questions/12842/make-all-new-files-in-a-directory-accessible-to-a-group
+
+The example must be run for each user that wants to use the same VM. 
+
+# Example 
+
+```
+
+## Create the common group to add all users
+sudo groupadd satpathy
+
+## Confirm its there 
+grep satpathy /etc/group
+
+a_user=jacobog ## change for new users 
+
+## Add a satpathy group as the primary for a user 
+sudo usermod -g satpathy jacobog ## Concrete example 
+#sudo usermod -g satpathy $a_user ## Automated approach
+
+## Throw the previous main group back as secondary 
+sudo usermod -a -G jacobog jacobog
+#sudo usermod -a -G $a_user $a_user
+
+
+## Allow Group Read/Write and force all new files to be in main group
+## The `-R` arg forces all existing files and dirs to have the new permissions. 
+sudo chmod -R g+rwxs jacobog
+#sudo chmod -R g+rwxs $a_user
+
+```
