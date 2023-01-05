@@ -11,6 +11,10 @@ https://unix.stackexchange.com/questions/12842/make-all-new-files-in-a-directory
 
 The example must be run for each user that wants to use the same VM. 
 
+I tried to move files between VM's and noticed that the account is owned by the google account (the one that your laptop uses when you do things like gcloud compute ssh in gcloud Command Line Interface)
+
+https://superuser.com/questions/345719/how-to-chmod-and-chown-hidden-files-in-linux
+
 # Example 
 
 ```
@@ -28,13 +32,20 @@ sudo usermod -g satpathy jacobog ## Concrete example
 #sudo usermod -g satpathy $a_user ## Automated approach
 
 ## Throw the previous main group back as secondary 
-sudo usermod -a -G jacobog jacobog
+sudo usermod -a -G jacobog jacobog 
 #sudo usermod -a -G $a_user $a_user
+
+## Make hidden files change owners away from the google admin whatever. 
+sudo chown -R jacobog_stanford_edu:jacobog_stanford_edu .
+#cd $a_user ## Go into dir
+#sudo chown -R $a_user:$a_user . ## dot is required to force hidden
 
 
 ## Allow Group Read/Write and force all new files to be in main group
 ## The `-R` arg forces all existing files and dirs to have the new permissions. 
 sudo chmod -R g+rwxs jacobog
 #sudo chmod -R g+rwxs $a_user
+
+
 
 ```
